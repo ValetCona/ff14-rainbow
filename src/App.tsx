@@ -44,6 +44,7 @@ function App() {
   const [isCheckedColor, setIsCheckedColor] = useState(false);
   const [preText, setPreText] = useState("");
   const [resultText, setResultText] = useState("");
+  const [resultPreview, setResultPreview] = useState("");
   const [open, setOpen] = useState(false);
 
   const onDrop = (dropResult: DropResult) => {
@@ -72,13 +73,16 @@ function App() {
 
   const onClickButton = () => {
     var result = "";
+    var preview = "";
     var color = isCheckedColor ? items.map((value) => { return value.text }) : defaultColors;
 
     preText.split('').forEach((char, index) => {
       result += `[color=${color[index % color.length]}]${char}[/color]`;
+      preview += `<span style="color:${color[index % color.length]}">${char}</span>`;
     });
     
     setResultText(result);
+    setResultPreview(preview);
   }
 
   const handleClick = () => {
@@ -180,6 +184,14 @@ function App() {
               readOnly: true,
             }}
           />
+        </Box>
+        <Box sx={{ padding: 2 }}>
+          <Typography variant="caption">
+            プレビュー
+          </Typography>
+          <Typography>
+            <span dangerouslySetInnerHTML={{__html: resultPreview}}></span>
+          </Typography>
         </Box>
       </Card>
     </div>
