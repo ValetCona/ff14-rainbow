@@ -75,7 +75,7 @@ function App() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            ロドスト日記テキスト虹色変換ツール
+            ロドスト日記の文字を虹色にするツール
           </Typography>
         </Toolbar>
       </AppBar>
