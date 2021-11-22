@@ -17,12 +17,22 @@ import {
   List,
   ListItem,
   ListItemSecondaryAction,
-  ListItemIcon
+  ListItemIcon,
+  Snackbar
 } from '@mui/material';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
 import { Container, Draggable, DropResult } from "react-smooth-dnd";
 import { arrayMoveImmutable } from "array-move";
+import CopyToClipBoard from 'react-copy-to-clipboard';
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref,
+) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function App() {
   const defaultColors = ['#C7000B', '#D28300', '#DFD000', '#00873C', '#005AA0', '#181878', '#800072'];
@@ -34,6 +44,8 @@ function App() {
   const [isCheckedColor, setIsCheckedColor] = useState(false);
   const [preText, setPreText] = useState("");
   const [resultText, setResultText] = useState("");
+  const [resultPreview, setResultPreview] = useState("");
+  const [open, setOpen] = useState(false);
 
   const onDrop = (dropResult: DropResult) => {
     const { removedIndex, addedIndex } = dropResult;
@@ -61,14 +73,29 @@ function App() {
 
   const onClickButton = () => {
     var result = "";
+    var preview = "";
     var color = isCheckedColor ? items.map((value) => { return value.text }) : defaultColors;
 
     preText.split('').forEach((char, index) => {
       result += `[color=${color[index % color.length]}]${char}[/color]`;
+      preview += `<span style="color:${color[index % color.length]}">${char}</span>`;
     });
     
     setResultText(result);
+    setResultPreview(preview);
   }
+
+  const handleClick = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   return (
     <div className="App">
@@ -133,7 +160,15 @@ function App() {
       </Card>
 
       <Box sx={{ m: 2 }}>
-        <Button variant="contained" onClick={onClickButton}>生成</Button>
+        <Button variant="contained" onClick={onClickButton}>虹色にする</Button>
+        <CopyToClipBoard text={resultText}>
+          <Button variant="contained" onClick={handleClick} sx={{ml: 2}}>結果をコピー</Button>
+        </CopyToClipBoard>
+        <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+            クリップボードにコピーしました
+          </Alert>
+        </Snackbar>
       </Box>
 
       <Card sx={{ m: 2 }}>
@@ -149,6 +184,14 @@ function App() {
               readOnly: true,
             }}
           />
+        </Box>
+        <Box sx={{ padding: 2 }}>
+          <Typography variant="caption">
+            プレビュー
+          </Typography>
+          <Typography>
+            <span dangerouslySetInnerHTML={{__html: resultPreview}}></span>
+          </Typography>
         </Box>
       </Card>
     </div>
