@@ -87,13 +87,20 @@ function App() {
   }
 
   const onClickButton = () => {
+    const skipChar = [" ", "　", "\r", "\n", "\r\n"];
+    const nlChar = ["\r", "\n", "\r\n"];
     var result = "";
     var preview = "";
     var color = isCheckedColor ? items.map((value) => value.text) : defaultColors;
 
     preText.split('').forEach((char, index) => {
-      result += `[color=${color[index % color.length]}]${char}[/color]`;
-      preview += `<span style="color:${color[index % color.length]}">${char}</span>`;
+      if (skipChar.includes(char)) {
+        result += char;
+        preview += nlChar.includes(char) ? "<br>" : char;
+      } else {
+        result += `[color=${color[index % color.length]}]${char}[/color]`;
+        preview += `<span style="color:${color[index % color.length]}">${char}</span>`;
+      }
     });
     
     setResultText(result);
