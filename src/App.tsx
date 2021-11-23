@@ -41,6 +41,7 @@ function App() {
       return {id: index, text: value}
     })
   );
+  const [nextId, setNextId] = useState(items.length);
   const [isCheckedColor, setIsCheckedColor] = useState(false);
   const [preText, setPreText] = useState("");
   const [resultText, setResultText] = useState("");
@@ -71,10 +72,15 @@ function App() {
     setPreText(event.target.value);
   }
 
+  const onClickAddButton = () => {
+    setItems([...items, {id: nextId, text: "#000000"}]);
+    setNextId(nextId + 1);
+  }
+
   const onClickButton = () => {
     var result = "";
     var preview = "";
-    var color = isCheckedColor ? items.map((value) => { return value.text }) : defaultColors;
+    var color = isCheckedColor ? items.map((value) => value.text) : defaultColors;
 
     preText.split('').forEach((char, index) => {
       result += `[color=${color[index % color.length]}]${char}[/color]`;
@@ -93,7 +99,6 @@ function App() {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpen(false);
   };
 
@@ -131,31 +136,34 @@ function App() {
               <FormControlLabel control={<Checkbox defaultChecked={false} onChange={onChangeColorBox}/>} label="色をカスタマイズする" />
             </FormGroup>
           </AccordionDetails>
-          <AccordionDetails sx={{display: isCheckedColor ? '' : 'none'}}>
-            <List>
-              <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop}>
-                {items.map(({ id, text }) => (
-                  <Draggable key={`draggable${id}`}>
-                    <ListItem>
-                      <TextField
-                        label="Color"
-                        variant="outlined"
-                        defaultValue={text}
-                        onChange={onChangeColorField}
-                        id={`${id}`}
-                        inputProps={{ maxLength: 7, pattern: "^#[a-fA-F0-9]{6}$" }}
-                      />
-                      <ListItemSecondaryAction>
-                        <ListItemIcon className="drag-handle">
-                          <DragHandleIcon />
-                        </ListItemIcon>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  </Draggable>
-                ))}
-              </Container>
-            </List>
-          </AccordionDetails>
+          <Box sx={{display: isCheckedColor ? '' : 'none'}}>
+            <AccordionDetails>
+              <List>
+                <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop}>
+                  {items.map((value) => (
+                    <Draggable key={value.id}>
+                      <ListItem>
+                        <TextField
+                          label={`Color`}
+                          variant="outlined"
+                          defaultValue={value.text}
+                          onChange={onChangeColorField}
+                          id={`${value.id}`}
+                          inputProps={{ maxLength: 7, pattern: "^#[a-fA-F0-9]{6}$" }}
+                        />
+                        <ListItemSecondaryAction>
+                          <ListItemIcon className="drag-handle">
+                            <DragHandleIcon />
+                          </ListItemIcon>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    </Draggable>
+                  ))}
+                </Container>
+              </List>
+            </AccordionDetails>
+            <Button variant="contained" onClick={onClickAddButton} sx={{ ml: 4, mb: 4 }}>色を追加</Button>
+          </Box>
         </Accordion>
       </Card>
 
