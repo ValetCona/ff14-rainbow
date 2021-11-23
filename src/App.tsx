@@ -4,6 +4,7 @@ import {
   Toolbar,
   AppBar,
   Button,
+  IconButton,
   Typography,
   Accordion,
   AccordionSummary,
@@ -23,6 +24,8 @@ import {
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Container, Draggable, DropResult } from "react-smooth-dnd";
 import { arrayMoveImmutable } from "array-move";
 import CopyToClipBoard from 'react-copy-to-clipboard';
@@ -41,6 +44,7 @@ function App() {
       return {id: index, text: value}
     })
   );
+  const [nextId, setNextId] = useState(items.length);
   const [isCheckedColor, setIsCheckedColor] = useState(false);
   const [preText, setPreText] = useState("");
   const [resultText, setResultText] = useState("");
@@ -71,14 +75,32 @@ function App() {
     setPreText(event.target.value);
   }
 
+  const onClickDeleteButton = (id: number) => {
+    setItems(items.filter((value) => {
+      return value.id !== id;
+    }));
+  }
+
+  const onClickAddButton = () => {
+    setItems([...items, {id: nextId, text: "#000000"}]);
+    setNextId(nextId + 1);
+  }
+
   const onClickButton = () => {
+    const skipChar = [" ", "　", "\r", "\n", "\r\n"];
+    const nlChar = ["\r", "\n", "\r\n"];
     var result = "";
     var preview = "";
-    var color = isCheckedColor ? items.map((value) => { return value.text }) : defaultColors;
+    var color = isCheckedColor ? items.map((value) => value.text) : defaultColors;
 
     preText.split('').forEach((char, index) => {
-      result += `[color=${color[index % color.length]}]${char}[/color]`;
-      preview += `<span style="color:${color[index % color.length]}">${char}</span>`;
+      if (skipChar.includes(char)) {
+        result += char;
+        preview += nlChar.includes(char) ? "<br>" : char;
+      } else {
+        result += `[color=${color[index % color.length]}]${char}[/color]`;
+        preview += `<span style="color:${color[index % color.length]}">${char}</span>`;
+      }
     });
     
     setResultText(result);
@@ -93,7 +115,6 @@ function App() {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpen(false);
   };
 
@@ -131,31 +152,39 @@ function App() {
               <FormControlLabel control={<Checkbox defaultChecked={false} onChange={onChangeColorBox}/>} label="色をカスタマイズする" />
             </FormGroup>
           </AccordionDetails>
-          <AccordionDetails sx={{display: isCheckedColor ? '' : 'none'}}>
-            <List>
-              <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop}>
-                {items.map(({ id, text }) => (
-                  <Draggable key={`draggable${id}`}>
-                    <ListItem>
-                      <TextField
-                        label="Color"
-                        variant="outlined"
-                        defaultValue={text}
-                        onChange={onChangeColorField}
-                        id={`${id}`}
-                        inputProps={{ maxLength: 7, pattern: "^#[a-fA-F0-9]{6}$" }}
-                      />
-                      <ListItemSecondaryAction>
+          <Box sx={{display: isCheckedColor ? '' : 'none'}}>
+            <AccordionDetails>
+              <List>
+                <Container dragHandleSelector=".drag-handle" lockAxis="y" onDrop={onDrop}>
+                  {items.map((value) => (
+                    <Draggable key={value.id}>
+                      <ListItem>
                         <ListItemIcon className="drag-handle">
                           <DragHandleIcon />
                         </ListItemIcon>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  </Draggable>
-                ))}
-              </Container>
-            </List>
-          </AccordionDetails>
+                        <TextField
+                          label={`Color`}
+                          variant="outlined"
+                          defaultValue={value.text}
+                          onChange={onChangeColorField}
+                          id={`${value.id}`}
+                          inputProps={{ maxLength: 7, pattern: "^#[a-fA-F0-9]{6}$" }}
+                        />
+                        <ListItemSecondaryAction>
+                          <IconButton onClick={() => onClickDeleteButton(value.id)}>
+                            <DeleteForeverIcon />
+                          </IconButton>
+                        </ListItemSecondaryAction>
+                      </ListItem>
+                    </Draggable>
+                  ))}
+                </Container>
+              </List>
+            </AccordionDetails>
+            <IconButton onClick={onClickAddButton} sx={{ml: 3, mb: 4}}>
+              <AddCircleOutlineIcon />
+            </IconButton>
+          </Box>
         </Accordion>
       </Card>
 
