@@ -4,6 +4,7 @@ import {
   Toolbar,
   AppBar,
   Button,
+  IconButton,
   Typography,
   Accordion,
   AccordionSummary,
@@ -23,6 +24,8 @@ import {
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DragHandleIcon from '@mui/icons-material/DragHandle';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Container, Draggable, DropResult } from "react-smooth-dnd";
 import { arrayMoveImmutable } from "array-move";
 import CopyToClipBoard from 'react-copy-to-clipboard';
@@ -70,6 +73,12 @@ function App() {
   
   const onChangePreText = (event: any) => {
     setPreText(event.target.value);
+  }
+
+  const onClickDeleteButton = (id: number) => {
+    setItems(items.filter((value) => {
+      return value.id !== id;
+    }));
   }
 
   const onClickAddButton = () => {
@@ -143,6 +152,9 @@ function App() {
                   {items.map((value) => (
                     <Draggable key={value.id}>
                       <ListItem>
+                        <ListItemIcon className="drag-handle">
+                          <DragHandleIcon />
+                        </ListItemIcon>
                         <TextField
                           label={`Color`}
                           variant="outlined"
@@ -152,9 +164,9 @@ function App() {
                           inputProps={{ maxLength: 7, pattern: "^#[a-fA-F0-9]{6}$" }}
                         />
                         <ListItemSecondaryAction>
-                          <ListItemIcon className="drag-handle">
-                            <DragHandleIcon />
-                          </ListItemIcon>
+                          <IconButton onClick={() => onClickDeleteButton(value.id)}>
+                            <DeleteForeverIcon />
+                          </IconButton>
                         </ListItemSecondaryAction>
                       </ListItem>
                     </Draggable>
@@ -162,7 +174,9 @@ function App() {
                 </Container>
               </List>
             </AccordionDetails>
-            <Button variant="contained" onClick={onClickAddButton} sx={{ ml: 4, mb: 4 }}>色を追加</Button>
+            <IconButton onClick={onClickAddButton} sx={{ml: 3, mb: 4}}>
+              <AddCircleOutlineIcon />
+            </IconButton>
           </Box>
         </Accordion>
       </Card>
